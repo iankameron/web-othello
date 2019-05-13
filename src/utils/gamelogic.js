@@ -1,27 +1,34 @@
-export function makePlay (elem, board, turn) {
-    // function to be assigned to various cells in the playing grid
-	//Get location of the click.
-  let validPlayEvaluation = false;
-	let flip = 0, flipRow = 0, flipColumn = 0;
-	let splitIdString = elem.id.split("_");
-  console.log(splitIdString)
-	let playRow = Number(splitIdString[0]);
-  let playColumn = Number(splitIdString[1]);
+const makePlay = (playRow, playColumn, board, turn) => {
+  //   // function to be assigned to various cells in the playing grid
+	// //Get location of the click.
+  // let validPlayEvaluation = false;
+	// let flip = 0, flipRow = 0, flipColumn = 0;
+	// let splitIdString = elem.id.split("_");
+  // console.log(splitIdString)
+	// let playRow = Number(splitIdString[0]);
+  // let playColumn = Number(splitIdString[1]);
 
 	//console.log(elem.id, playRow, playColumn);
 	//Evaluate whether square is empty or if other pieces make it valid
 	validPlayEvaluation = evaluateSpace(playRow, playColumn, board, turn);
 	//based on evaluation, update board and gameStatus
-  return {
-    valid: Boolean(validPlayEvaluation.length),
-    flips: [playRow, playColumn, ...validPlayEvaluation]
+  if (validPlayEvaluation.length > 0) {
+    let flips = [playRow, playColumn, ...validPlayEvaluation];
+    let flipPairCount = flips.length / 2;
+    for (let flip = 0; flip < flipPairCount; flip++) {
+      let flipRow = flips[flip*2];
+      let flipColumn = flips[flip*2+1];
+      board[flipRow][flipColumn] = turn;
+    }
+    turn = !turn;
+    // console.log(gameData.board, state.gameData.turn)
   }
-  
-}
+  return turn;
+};
 
 // Function will return array. If array is empty, it's not a legal play.
 // If legal, the array will contain  coordinates of tiles that can be flipped.
-export function evaluateSpace (playRow, playColumn, board, turn) {
+function evaluateSpace (playRow, playColumn, board, turn) {
 	console.log("enteringEvalSpace", playRow, playColumn);
 	var evaluationResult = false;
 
@@ -81,6 +88,8 @@ export function evaluateSpace (playRow, playColumn, board, turn) {
     }
 		// NO ELSE: If the next cell is same color or null, then direction should be false
 	}
-    console.log("Final Results: ", flipResultsPairs.toString());
+  console.log("Final Results: ", flipResultsPairs.toString());
 	return flipResultsPairs;
 }
+
+module.exports = {makePlay};

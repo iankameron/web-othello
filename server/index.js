@@ -3,6 +3,7 @@ const app = require("./app");
 const socket = require("socket.io");
 const initialGame = require("../src/utils/initialGame")
 let gamesData = [];
+const {makePlay} = require("../src/utils/gamelogic");
 
 const PORT = process.env.PORT || 9000;
 
@@ -17,10 +18,12 @@ io.on("connection", (socket) => {
   console.log("received connection from", socket.id);
 
   socket.on("initialize", () => {
-    io.sockets.emit("gameData", initialGame);
+    gamesData.push({...initialGame})
+    io.sockets.emit("gameData", gamesData[0]);
   });
-
+  
   socket.on("makePlay", (playData) => {
-    // TODO add playing functionality
+    gamesData[0].turn = makePlay(Number(playData.playRow), Number(playData.playColumn), gamesData[0].board, gamesData[0].turn);
+    io.sockets.emit("gameData", gamesData[0]);
   })
 });

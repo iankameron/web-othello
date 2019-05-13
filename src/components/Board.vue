@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import {makePlay, evaluateSpace} from "../utils/gamelogic";
 import { mapState } from 'vuex';
 export default {
   name: 'Board',
@@ -29,12 +28,15 @@ export default {
   }),
   methods: {
     clickSquare (event) {
-      let check = makePlay(event.target, this.board, this.turn);
-      console.log(check);
-      if (check.valid) {
-        this.$store.commit("makePlay", check.flips);
-      }
-      this.$store.dispatch("play", {play:"helloworld"});
+      let rowCol = event.target.id.split("_");
+      let playRow = rowCol[0];
+      let playColumn = rowCol[1];
+      // let check = makePlay(event.target, this.board, this.turn);
+      // console.log(check);
+      // if (check.valid) {
+      //   this.$store.commit("makePlay", check.flips);
+      // }
+      this.$store.dispatch("play", {playRow, playColumn});
     },
     pieceClass (value) {
       if (value !== null) {
