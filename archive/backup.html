@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<style>
+table {
+	font-size: 20pt;
+    color: white;
+    line-height: 16pt;
+    
+}
+td {
+	border: 1px solid white;
+    background-color: black;
+    text-align: center;
+    padding: 5px;
+    vertical-align: bottom;
+    width: 30px;
+}
+tr {
+	height: 40px;
+}
+h3 {
+	color: red;
+	height: 30px;
+}
+</style>
+
+<h2>Othello</h2>
+
+<!--
+Rows: <input id="rowInput" type="text" style="width:50px" value=8>
+Columns: <input id="columnInput" type="text" style="width:50px" value=8>
+<button id="createBoardButton" onclick="createBoard()">Create Board</button>
+-->
+
+<center>
+
+<table style="width:50%">
+	<tr><td colspan=3>Whose turn is it:</td></tr>
+	<tr><td>Åú</td><td id="turnIndicator"></td><td>Åõ</td></tr>  
+</table>
+<h3 id="misplay"></h3>
+<table id="board"> <!-- Board inserted here via JS -->
+</table>
+<br />
+<table style="width:30%">
+	<tr><td colspan=3>Score</td></tr>
+	<tr><td>White</td><td></td><td>Black</td></tr>
+	<tr><td id="whiteScore"></td><td id="gameLead"></td><td id="blackScore"></td></tr>  
+</table>
+<center>
+
+
+<script>
+// Creating board initially
+
+var gameStatus = {};
+initializePlay();
+
+//Functions
+function initializePlay() {
+	// Initialize matrix. 0 is unplayed, 1 is white, -1 is black
+	var whitePlay = true;
+    var blackPlay = false;
+	gameStatus = {
+		"numRows":8,
+        "numColumns":8,
+        "whiteMarker":"Åú",
+        "blackMarker":"Åõ",
+        "turn":true,
+        "whiteScore":2,
+        "blackScore":2,
+    	board:
+           [[null,null,null,null,null,null,null,null],
+        	[null,null,null,null,null,null,null,null],
+        	[null,null,null,null,null,null,null,null],
+        	[null,null,null,true,false,null,null,null],
+        	[null,null,null,false,true,null,null,null],
+        	[null,null,null,null,null,null,null,null],
+        	[null,null,null,null,null,null,null,null],
+        	[null,null,null,null,null,null,null,null]]
+        };
+    //console.log(gameBoardStatus.board[5-1][4-1]);
+    drawBoard();
+}
+
+
+function drawBoard() {
+	var numRows = gameStatus.numRows, numColumns = gameStatus.numColumns;
+	var boardElement = document.getElementById("board");
+	var HTMLString = "";
+    var rowCounter, columnCounter;
+    
+    // update "Whose turn is it" marker. Set "<" and turn > if black (false)
+	document.getElementById("turnIndicator").innerHTML = "ÅÉ";
+	if (!gameStatus.turn) {document.getElementById("turnIndicator").innerHTML = "ÅÑ";}
+    
+    // redraw playing board, based on status of board array
+    
+    for (rowCounter = 0 ; rowCounter < numRows; rowCounter++) {
+    	HTMLString += "<tr>";
+        for (columnCounter = 0 ; columnCounter < numColumns; columnCounter++) {
+			//Initiate cell w ID to locate clicks and add the click function..
+            
+			HTMLString += '<td id="board_' + rowCounter + '_' + columnCounter + '" onclick="makePlay(this)">';
+			if (gameStatus.board[rowCounter][columnCounter] == null) {
+            	//no fill if it is null
+            } else if (gameStatus.board[rowCounter][columnCounter]) {
+            	HTMLString += gameStatus.whiteMarker;
+            } else {
+            	HTMLString += gameStatus.blackMarker;
+            }
+            HTMLString += "</td>";
+        }
+        HTMLString += "</tr>";
+    }
+    boardElement.innerHTML = HTMLString;
+    
+    return null;
+}
+
+function makePlay (elem) {
+	
+    // function to be assigned to various cells in the playing grid
+	//Get location of the click.
+    var validPlayEvaluation = false;
+	var flip = 0, flipRow = 0, flipColumn = 0;
+	var splitIdString = elem.id.split("_");
+	playRow = Number(splitIdString[1]);
+    playColumn = Number(splitIdString[2]);
+
+	//console.log(elem.id, playRow, playColumn);
+	//Evaluate whether square is empty or if other pieces make it valid
+	validPlayEvaluation = evaluateSpace(playRow, playColumn);
+	var tempVar = validPlayEvaluation[0];
+	console.log("returned value:", tempVar);
+	//based on evaluation, update board and gameStatus
+    if (validPlayEvaluation.length > 0) {
+	//clear warnings if any
+    	document.getElementById("misplay").innerHTML ="";
+    	//update played square
+        gameStatus.board[playRow][playColumn] = gameStatus.turn;
+        //update flipped squares
+        flipPairCount = validPlayEvaluation.length / 2;
+        for (flip = 0; flip < flipPairCount; flip++) {
+        	flipRow = validPlayEvaluation[flip*2];
+            flipColumn = validPlayEvaluation[flip*2+1];
+            //console.log("flip array indexes:",(flip*2),(flip*2+1));
+            //console.log("flip coordinates:",flipRow);
+            gameStatus.board[flipRow][flipColumn] = gameStatus.turn;
+        }
+        //update turn
+        gameStatus.turn = !gameStatus.turn;
+        //redraw board
+        drawBoard();
+        //update scores
+        updateScore();
+    } else {
+    	document.getElementById("misplay").innerHTML ="You can't play there";
+    }
+}
+
+// Function will return array. If array is empty, it's not a legal play.
+// If legal, the array will contain  coordinates of tiles that can be flipped.
+function evaluateSpace (playRow, playColumn) {
+	console.log("enteringEvalSpace", playRow, playColumn);
+	var evaluationResult = false;
+
+	var directionCounter, checkRow, checkColumn, checkCellStatus, continueDirection = true, tempPairs = [], flipResultsPairs = [];
+//xx    var checkString = "";
+	//Check if clicked cell is empty. if not, then forbid play.
+	if (gameStatus.board[playRow][playColumn] != null) {return [];}
+    
+	var numRows = gameStatus.numRows, numColumns = gameStatus.numColumns;
+	// 8 possible check directions. starting from right and going CCW.
+	var directionIncrements = [[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1]];
+
+	for (directionCounter = 0; directionCounter < 8; directionCounter++) {
+		//initialize variables for direction check and first checkCell
+        	continueDirection = true;
+		tempPairs = [];
+		checkRow = playRow + directionIncrements[directionCounter][0];
+		checkColumn = playColumn + directionIncrements[directionCounter][1];
+		console.log("Before entering loop", directionCounter, checkRow, checkColumn);
+		// an index call on an undefined results in an error, so avoid when gameStatus.board[checkRow] is empty
+		if (gameStatus.board[checkRow]) {
+			checkCellStatus = gameStatus.board[checkRow][checkColumn];
+		} else {continueDirection = false;}
+
+		//Check first if the neighboring space is the different color.
+		if (checkCellStatus === !gameStatus.turn) {
+			//console.log(checkCellStatus);
+			while (continueDirection === true) { 
+//            	(checkCellStatus != undefined || checkCellStatus === null)) {
+                
+                // The next cell has been confirmed to be different, if it comes
+                // back to same color, then pieces can be flipped with the play.
+                // Therefore, tempPairs can be added to flipResultsPairs
+                if (checkCellStatus === gameStatus.turn) {
+                	console.log("ending loop");
+                	flipResultsPairs = flipResultsPairs.concat(tempPairs);
+                    continueDirection = false;
+                } else if (checkCellStatus === !gameStatus.turn) {
+                	 //if status is not same color, add to temp list of flippables
+					console.log("before adding to temp:", checkRow, checkColumn);
+					tempPairs.push(checkRow, checkColumn);
+                     console.log("Temp Results: ", tempPairs.toString());
+                } else {
+                	//If status is null or undefined, stop searching
+                    continueDirection = false;
+                }
+
+			checkRow += directionIncrements[directionCounter][0];
+			checkColumn += directionIncrements[directionCounter][1];
+			console.log("Direction: ",directionCounter, ". changing to ", checkRow, checkColumn);
+			if (gameStatus.board[checkRow]) {
+				checkCellStatus = gameStatus.board[checkRow][checkColumn];
+			} else {continueDirection = false;}
+                //console.log(checkCellStatus, "end of while");
+			}
+        }
+		// NO ELSE: If the next cell is same color or null, then direction should be false
+	}
+    console.log("Final Results: ", flipResultsPairs.toString());
+	return flipResultsPairs;
+}
+
+/////////////////////////////////////////////
+function updateScore() {
+	var whitePoints = 0, blackPoints = 0;
+	var scoreRow = 0, scoreColumn = 0;
+    // go through table to check trues and falses..
+    for (scoreRow = 0; scoreRow < gameStatus.numRows; scoreRow++) {
+		for (scoreColumn = 0; scoreColumn < gameStatus.numColumns; scoreColumn++) {
+        	if (gameStatus.board[scoreRow][scoreColumn] === true) {
+            	whitePoints++;
+            } else if  (gameStatus.board[scoreRow][scoreColumn] === false) {
+				blackPoints++;
+			}
+        }
+	}
+    
+	document.getElementById("whiteScore").innerHTML= whitePoints;
+	document.getElementById("blackScore").innerHTML= blackPoints;
+    if (whitePoints > blackPoints) {
+    	document.getElementById("gameLead").innerHTML= "< " + (whitePoints - blackPoints);
+    } else if (blackPoints > whitePoints) {
+		document.getElementById("gameLead").innerHTML = (blackPoints - whitePoints) + " >";
+	} else {
+    	document.getElementById("gameLead").innerHTML = "TIE";
+    }
+}
+
+</script>
+
+
+
+</body>
+</html>
