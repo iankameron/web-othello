@@ -1,19 +1,26 @@
 const app = require("./app");
 // const db = require("./knex");
+const socket = require("socket.io");
+const initialGame = require("../src/utils/initialGame")
+let gamesData = [];
 
 const PORT = process.env.PORT || 9000;
 
-(async () => {
-  try {
-    // console.log("Running migrations...");
-    // await db.migrate.latest();
+console.log("Starting express...");
+const server = app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}!`);
+});
 
-    console.log("Starting express...");
-    app.listen(PORT, () => {
-      console.log(`App listening on port ${PORT}!`);
-    });
-  } catch (err) {
-    console.error("Error starting app!", err);
-    process.exit(-1);
-  }
-})();
+let io = socket(server);
+
+io.on("connection", (socket) => {
+  console.log("received connection from", socket.id);
+
+  socket.on("initialize", () => {
+    io.sockets.emit("gameData", initialGame);
+  });
+
+  socket.on("makePlay", (playData) => {
+    // TODO add playing functionality
+  })
+});

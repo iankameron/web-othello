@@ -24,8 +24,8 @@ import { mapState } from 'vuex';
 export default {
   name: 'Board',
   computed: mapState ({
-    board: "board",
-    turn:"turn"
+    board: state => state.gameData.board,
+    turn: state => state.gameData.turn
   }),
   methods: {
     clickSquare (event) {
@@ -34,6 +34,7 @@ export default {
       if (check.valid) {
         this.$store.commit("makePlay", check.flips);
       }
+      this.$store.dispatch("play", {play:"helloworld"});
     },
     pieceClass (value) {
       if (value !== null) {

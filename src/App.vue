@@ -11,6 +11,9 @@ export default {
   name: 'app',
   components: {
     Board
+  },
+  created: function () {
+    this.$store.dispatch("connect");
   }
 }
 </script>

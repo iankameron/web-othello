@@ -6,22 +6,38 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    "numRows":8,
-    "numColumns":8,
-    "whiteMarker":"��",
-    "blackMarker":"��",
-    "turn":true,
-    "whiteScore":2,
-    "blackScore":2,
-    "board":
-        [[null,null,null,null,null,null,null,null],
-        [null,null,null,null,null,null,null,null],
-        [null,null,null,null,null,null,null,null],
-        [null,null,null,true,false,null,null,null],
-        [null,null,null,false,true,null,null,null],
-        [null,null,null,null,null,null,null,null],
-        [null,null,null,null,null,null,null,null],
-        [null,null,null,null,null,null,null,null]]
+    "socket": {},
+    "windowState": "signin",
+    "gameData": {}
+    // "numRows":8,
+    // "numColumns":8,
+    // "whiteMarker":"��",
+    // "blackMarker":"��",
+    // "turn":true,
+    // "whiteScore":2,
+    // "blackScore":2,
+    // "board":
+    //     [[null,null,null,null,null,null,null,null],
+    //     [null,null,null,null,null,null,null,null],
+    //     [null,null,null,null,null,null,null,null],
+    //     [null,null,null,true,false,null,null,null],
+    //     [null,null,null,false,true,null,null,null],
+    //     [null,null,null,null,null,null,null,null],
+    //     [null,null,null,null,null,null,null,null],
+    //     [null,null,null,null,null,null,null,null]]
+  },
+  actions: {
+    play (state, playData) {
+      this.state.socket.emit("play", playData);
+    },
+    connect () {
+      let tempsocket = io.connect();
+      tempsocket.on("gameData", (gameData) => {
+        this.commit("storeGameData", gameData);
+      });
+      this.commit('connect', tempsocket);
+      this.state.socket.emit("initialize");
+    }
   },
   mutations: {
     makePlay (state, flips) {
@@ -29,10 +45,16 @@ const store = new Vuex.Store({
       for (let flip = 0; flip < flipPairCount; flip++) {
         let flipRow = flips[flip*2];
         let flipColumn = flips[flip*2+1];
-        state.board[flipRow][flipColumn] = state.turn;
+        state.gameData.board[flipRow][flipColumn] = state.turn;
       }
-      state.turn = !state.turn;
-      console.log(state.board, state.turn)
+      state.gameData.turn = !state.turn;
+      console.log(state.gameData.board, state.gameData.turn)
+    },
+    connect (state, socket) {
+      state.socket = socket;
+    },
+    storeGameData (state, gameData) {
+      state.gameData = gameData;
     }
   }
 });
