@@ -10,62 +10,33 @@ const store = new Vuex.Store({
     "socketId": "",
     "windowState": "signin",
     "gameData": {}
-    // "numRows":8,
-    // "numColumns":8,
-    // "whiteMarker":"��",
-    // "blackMarker":"��",
-    // "turn":true,
-    // "whiteScore":2,
-    // "blackScore":2,
-    // "board":
-    //     [[null,null,null,null,null,null,null,null],
-    //     [null,null,null,null,null,null,null,null],
-    //     [null,null,null,null,null,null,null,null],
-    //     [null,null,null,true,false,null,null,null],
-    //     [null,null,null,false,true,null,null,null],
-    //     [null,null,null,null,null,null,null,null],
-    //     [null,null,null,null,null,null,null,null],
-    //     [null,null,null,null,null,null,null,null]]
   },
   actions: {
     play (state, playData) {
-      console.log("actions:", playData);
       this.state.socket.emit("makePlay", playData);
     },
     connect () {
       let initSocket = io.connect();
       initSocket.on("gameData", (gameData) => {
         this.commit("storeGameData", gameData);
-        console.log(gameData);
       });
+      // receiving messages from the server
       initSocket.on("message", (message) => {
         alert(message);
       });
+      // receiving the terminal's socket ID for self-identification
       initSocket.on("giveId", (id) => {
         this.commit("setSocketId", id);
       });
-      this.commit('connect', initSocket);
+      this.commit('connect', initSocket); // save socket info to state
 
-      console.log(initSocket);
-      console.log(initSocket.id);
-      // console.log(this.state);
-      this.state.socket.emit("initialize");
+      this.state.socket.emit("initialize"); // "log in" to a game
     },
     resetGames () {
       this.state.socket.emit("resetGames");
     }
   },
   mutations: {
-    // makePlay (state, flips) {
-    //   let flipPairCount = flips.length / 2;
-    //   for (let flip = 0; flip < flipPairCount; flip++) {
-    //     let flipRow = flips[flip*2];
-    //     let flipColumn = flips[flip*2+1];
-    //     state.gameData.board[flipRow][flipColumn] = state.turn;
-    //   }
-    //   state.gameData.turn = !state.turn;
-    //   console.log(state.gameData.board, state.gameData.turn)
-    // },
     connect (state, socket) {
       state.socket = socket;
     },

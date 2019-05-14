@@ -40,11 +40,6 @@ export default {
       let rowCol = event.target.id.split("_");
       let playRow = parseInt(rowCol[0]);
       let playColumn = parseInt(rowCol[1]);
-      // let check = makePlay(event.target, this.board, this.turn);
-      // console.log(check);
-      // if (check.valid) {
-      //   this.$store.commit("makePlay", check.flips);
-      // }
       this.$store.dispatch(
         "play", 
         {
@@ -80,38 +75,37 @@ export default {
 <style scoped>
 #left-pane {
   display: inline-block;
-  width:30%;
+  width:20%;
   height:100%;
   text-align: center;
   vertical-align:middle;
 }
 .game-title {
-  font-size: 3em;
+  font-size: 2em;
   color: #ccc;
   text-shadow: 2px 2px 5px #000;
 }
 .game-info {
-  font-size: 2em;
+  font-size: 1em;
   color: #ccc;
   text-shadow: 2px 2px 5px #000;
   padding-bottom: 4em;
 }
 .generic-button {
-  font-size: 2em;
+  font-size: 1em;
   background-color: #ccc;
   text-shadow: 1px 1px 3px #666;
 
 }
 #right-pane {
   display: inline-block;
-  width:70%;
+  padding: 0px;
   height:100%;
   vertical-align: middle;
 }
 .green-felt {
   background-color: #060;
   padding: 20px;
-  text-align: center;
 }
 
 #board-container {
@@ -124,13 +118,13 @@ export default {
 }
 .board-square {
   display: inline-block;
-  padding: 6px;
+  padding: 3px;
   margin: -.5px;
   border: 1px solid #030;
 }
 .piece {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   margin: -1px;
 }
