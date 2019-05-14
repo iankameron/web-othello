@@ -1,5 +1,4 @@
 const app = require("./app");
-// const db = require("./knex");
 const socket = require("socket.io");
 const initialGame = require("../src/utils/initialGame")
 let gamesData = {};
@@ -16,18 +15,14 @@ const server = app.listen(PORT, () => {
 let io = socket(server);
 
 io.on("connection", (socket) => {
-  // console.log("received connection from", socket.id);
 
   socket.on("initialize", () => {
-    console.log("connection from", socket.id);
     let targetGameId = "";
     
     if(Object.keys(gamesData).length > 0) {
       // find a game with only one player
       for (let gameId of Object.keys(gamesData)) {
         if (gamesData[gameId].playerSockets.length === 1) {
-          //console.log("checking game of ID", gameId);
-          //console.log("that games sockets", gamesData[gameId].playerSockets);
           targetGameId = gameId;
         }
       }
@@ -36,7 +31,6 @@ io.on("connection", (socket) => {
     // store second socket, set currentPlayer
       gamesData[targetGameId].playerSockets.push(socket.id);
       gamesData[targetGameId].currentPlayer = gamesData[targetGameId].playerSockets[0];
-      //console.log("should have set currentPlayer to", gamesData[targetGameId].playerSockets[0]);
       io.to(socket.id).emit("message", "You will be black and white plays first.\nPlease wait for first play.");
       io.to(gamesData[targetGameId].playerSockets[0]).emit("message", "Second player has joined. Please begin!");
     } else { //no empty cames so create a new one.
@@ -53,9 +47,6 @@ io.on("connection", (socket) => {
       io.to(socketId).emit("gameData", gamesData[targetGameId]);
     }
     io.to(socket.id).emit("giveId", socket.id);
-
-    // console.log(`current games ${Object.keys(gamesData)}`)
-    // console.log(gamesData[targetGameId]);
     
   });
   
@@ -74,12 +65,10 @@ io.on("connection", (socket) => {
     else {
       io.to(socket.id).emit("message", "It isn't your turn! \n(Or some other error)")
     }
-    console.log(gamesData);
   });
 
   socket.on("resetGames", () => {
     gamesData = {};
-    console.log(gamesData);
     io.sockets.emit("message", "Please refresh page to start again");
   })
 });
