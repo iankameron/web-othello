@@ -7,6 +7,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     "socket": {},
+    "socketId": "",
     "windowState": "signin",
     "gameData": {}
     // "numRows":8,
@@ -32,12 +33,26 @@ const store = new Vuex.Store({
       this.state.socket.emit("makePlay", playData);
     },
     connect () {
-      let tempsocket = io.connect();
-      tempsocket.on("gameData", (gameData) => {
+      let initSocket = io.connect();
+      initSocket.on("gameData", (gameData) => {
         this.commit("storeGameData", gameData);
+        console.log(gameData);
       });
-      this.commit('connect', tempsocket);
+      initSocket.on("message", (message) => {
+        alert(message);
+      });
+      initSocket.on("giveId", (id) => {
+        this.commit("setSocketId", id);
+      });
+      this.commit('connect', initSocket);
+
+      console.log(initSocket);
+      console.log(initSocket.id);
+      // console.log(this.state);
       this.state.socket.emit("initialize");
+    },
+    resetGames () {
+      this.state.socket.emit("resetGames");
     }
   },
   mutations: {
@@ -56,6 +71,9 @@ const store = new Vuex.Store({
     },
     storeGameData (state, gameData) {
       state.gameData = gameData;
+    },
+    setSocketId (state, id) {
+      state.socketId = id;
     }
   }
 });

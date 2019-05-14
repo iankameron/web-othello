@@ -1,4 +1,7 @@
 module.exports = {
+  "playerSockets": [],
+  "currentPlayer": null,
+  "gameId": null,
   "numRows":8,
   "numColumns":8,
   "whiteMarker":"��",

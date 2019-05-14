@@ -1,18 +1,16 @@
 <template>
   <div>
     <table style="width:50%">
-      <tr><td colspan=3>Whose turn is it:</td></tr>
-      <tr><td>●</td><td>{{pointTo(this.turn)}}</td><td>○</td></tr>  
+      <tr><td>Whose turn is it:</td></tr>
+      <tr><td><span v-if="this.socketId !== this.currentPlayer">Not </span>Yours</td></tr>  
+      <tr><td><button @click="() => resetGames()">Reset</button></td></tr>
     </table>
     <h3 id="misplay"></h3>
     <div id="board-container">
       <div v-for="(row, rindex) in this.board"  class="board-row">
-        <span v-for="(square, cindex) in row" 
-            class="board-square" 
-            v-bind:id="rindex + '_' + cindex"
-            v-on:click="clickSquare">
-          <div v-bind:class="pieceClass(square)" />
-        </span>
+        <div v-for="(square, cindex) in row" class="board-square" v-bind:id="rindex + '_' + cindex" v-on:click="clickSquare">
+          <div v-bind:class="pieceClass(square)" v-bind:id="rindex + '_' + cindex"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -24,19 +22,34 @@ export default {
   name: 'Board',
   computed: mapState ({
     board: state => state.gameData.board,
-    turn: state => state.gameData.turn
+    turn: state => state.gameData.turn,
+    gameId: state => state.gameData.gameId,
+    socketId: state => state.socketId,
+    currentPlayer: state => state.gameData.currentPlayer
   }),
   methods: {
     clickSquare (event) {
+      console.log(event.target.id);
       let rowCol = event.target.id.split("_");
-      let playRow = rowCol[0];
-      let playColumn = rowCol[1];
+      let playRow = parseInt(rowCol[0]);
+      let playColumn = parseInt(rowCol[1]);
       // let check = makePlay(event.target, this.board, this.turn);
       // console.log(check);
       // if (check.valid) {
       //   this.$store.commit("makePlay", check.flips);
       // }
-      this.$store.dispatch("play", {playRow, playColumn});
+      this.$store.dispatch(
+        "play", 
+        {
+          gameId: this.gameId,
+          newPlay: {
+            playRow, 
+            playColumn
+          }
+        });
+    },
+    resetGames () {
+      this.$store.dispatch("resetGames");
     },
     pieceClass (value) {
       if (value !== null) {
@@ -56,18 +69,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-div {
-  display: block-inline;
-  margin: 0px;
-  padding: 0px;
-}
-
 #board-container {
   width: 25em;
   border: 1px solid black;
 }
 .board-row {
-  display: block;
+  display: inline-block;
 }
 .board-square {
   display: inline-block;
@@ -75,7 +82,6 @@ div {
   width: 3em;
   height: 3em;
   border: 1px solid black;
-  text-align: center;
   margin: 0px;
 }
 .white-piece {
