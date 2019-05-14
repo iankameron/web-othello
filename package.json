@@ -6,12 +6,16 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "node server"
+    "start": "node server",
+    "devserv": "nodemon server",
+    "restart": "yarn build && yarn start"
   },
   "dependencies": {
     "core-js": "^2.6.5",
     "express": "^4.16.4",
     "morgan": "^1.9.1",
+    "nodemon": "^1.19.0",
+    "shortid": "^2.2.14",
     "socket.io": "^2.2.0",
     "vue": "^2.6.10",
     "vuex": "^3.1.1"

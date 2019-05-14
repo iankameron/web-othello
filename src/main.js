@@ -7,6 +7,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     "socket": {},
+    "socketId": "",
     "windowState": "signin",
     "gameData": {}
     // "numRows":8,
@@ -28,33 +29,51 @@ const store = new Vuex.Store({
   },
   actions: {
     play (state, playData) {
-      this.state.socket.emit("play", playData);
+      console.log("actions:", playData);
+      this.state.socket.emit("makePlay", playData);
     },
     connect () {
-      let tempsocket = io.connect();
-      tempsocket.on("gameData", (gameData) => {
+      let initSocket = io.connect();
+      initSocket.on("gameData", (gameData) => {
         this.commit("storeGameData", gameData);
+        console.log(gameData);
       });
-      this.commit('connect', tempsocket);
+      initSocket.on("message", (message) => {
+        alert(message);
+      });
+      initSocket.on("giveId", (id) => {
+        this.commit("setSocketId", id);
+      });
+      this.commit('connect', initSocket);
+
+      console.log(initSocket);
+      console.log(initSocket.id);
+      // console.log(this.state);
       this.state.socket.emit("initialize");
+    },
+    resetGames () {
+      this.state.socket.emit("resetGames");
     }
   },
   mutations: {
-    makePlay (state, flips) {
-      let flipPairCount = flips.length / 2;
-      for (let flip = 0; flip < flipPairCount; flip++) {
-        let flipRow = flips[flip*2];
-        let flipColumn = flips[flip*2+1];
-        state.gameData.board[flipRow][flipColumn] = state.turn;
-      }
-      state.gameData.turn = !state.turn;
-      console.log(state.gameData.board, state.gameData.turn)
-    },
+    // makePlay (state, flips) {
+    //   let flipPairCount = flips.length / 2;
+    //   for (let flip = 0; flip < flipPairCount; flip++) {
+    //     let flipRow = flips[flip*2];
+    //     let flipColumn = flips[flip*2+1];
+    //     state.gameData.board[flipRow][flipColumn] = state.turn;
+    //   }
+    //   state.gameData.turn = !state.turn;
+    //   console.log(state.gameData.board, state.gameData.turn)
+    // },
     connect (state, socket) {
       state.socket = socket;
     },
     storeGameData (state, gameData) {
       state.gameData = gameData;
+    },
+    setSocketId (state, id) {
+      state.socketId = id;
     }
   }
 });

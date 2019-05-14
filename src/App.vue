@@ -1,7 +1,5 @@
 <template>
-  <div id="app">
-    <Board msg="This is othello"/>
-  </div>
+    <Board class="board" msg="This is othello"/>
 </template>
 
 <script>
@@ -19,5 +17,10 @@ export default {
 </script>
 
 <style>
-
+.board {
+  height:100vh;
+  background-image: url("./assets/wood.jpg");
+  padding: 0px;
+  margin: 0px;
+}
 </style>
