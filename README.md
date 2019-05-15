@@ -48,10 +48,6 @@ yarn run lint
 ### Vue Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-
-
-
-
 ## Installation
 
 Install dependencies:
@@ -79,7 +75,7 @@ To build latest application and start express server:
 
 Feel free to open issues in the repository.
 
-For pull requests, please create a new branch from the `basic` branch, and submit your pull requests to `basic`.
+For pull requests, please create a new branch from the `testing` branch, and submit your pull requests to `testing`.
 
 ## Credits
 
