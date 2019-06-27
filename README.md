@@ -20,56 +20,37 @@ The board in v1.0.
 - [Vuex](https://vuex.vuejs.org/)
 - [socket.io](https://socket.io)
 
-
 ## Project setup
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
-If you have a separate backend, think about proxying it.
-```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-Testing currently done entirely by hand.
-
-### Lints and fixes files
-```
-yarn run lint
-```
+### Tests
+Currently, no automated tests exist for Eibar.
 
 ### Vue Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-## Installation
+## Scripts
 
 Install dependencies:
-`yarn`
+`yarn install`
 
-In posgress, create database with name `truckstop`.
-
-Run migration files:
-`yarn migrate`
-
-Populate the database by running the following command in the "data" subfolder.
-`node import`
-
-To start development server with hot-reloading:
-`yarn hack`
-and visit `localhost:3000`
+Vue hot-reloading:
+`yarn serve`
 
 To build latest application:
 `yarn build`
 
+To start Express server
+`yarn start`
+
+To start hotloading Express server (nodemon)
+`yarn devserv`
+
 To build latest application and start express server:
 `yarn restart`
+
 
 ## Contribute
 
